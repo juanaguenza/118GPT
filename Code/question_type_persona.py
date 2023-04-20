@@ -103,22 +103,6 @@ def create_result():
         print("Enter \'exit\' to exit program.\n")
         return "error getting an answer"
 
-    path_to_folders = '/Users/juan/Documents/CMPM118/MATH/test/' # replace with your own filepath
-    folder = input("What folder would you like to run? (algebra) (counting_and_probability) (geometry) (intermediate_algebra) (number_theory) (prealgebra) or (precalculus)\n")
-    path_to_json = path_to_folders + folder + '/*.json'
-
-    try:
-        os.mkdir(path_to_json.replace("*.json", "") + "answers")
-    except OSError as error:
-        print(error)
-        pass
-
-    # no longer vanilla -> telling it what kind of question it is
-    chat_messages.append({"role" : "system", "content" : "This is a " + folder + " question."})
-
-    counter = 0
-    for f_name in sorted(glob(path_to_json)):
-
 
 path_to_folders = '/Users/juan/Documents/CMPM118/MATH/test/' # replace with your own filepath
 # folder = input("What folder would you like to run? (algebra) (counting_and_probability) (geometry) (intermediate_algebra) (number_theory) (prealgebra) or (precalculus)\n")
