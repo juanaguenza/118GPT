@@ -123,7 +123,7 @@ for folder in list_of_folders:
 
     # make answers dir if it's not already there
     try:
-        os.mkdir(path_to_json.replace("*.json", "") + "answers")
+        os.mkdir(path_to_json.replace("*.json", "") + "persona_answers")
     except OSError as error:
         print(error)
         pass
