@@ -150,7 +150,7 @@ list_of_folders = ["algebra", "counting_and_probability", "geometry", "intermedi
 for folder in list_of_folders:
     counter = 0
 
-    path_to_json = path_to_folders + folder + '/answers/*.json'
+    path_to_json = path_to_folders + folder + '/question_type_answers/*.json'
 
     try:
         os.mkdir(path_to_json.replace("*.json", "") + "answers_formatted")
