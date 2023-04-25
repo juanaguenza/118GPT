@@ -122,7 +122,7 @@ for folder in list_of_folders:
 
     # make answers dir if it's not already there
     try:
-        os.mkdir(path_to_json.replace("*.json", "") + "answers")
+        os.mkdir(path_to_json.replace("*.json", "") + "cot_answers")
     except OSError as error:
         print(error)
         pass
@@ -149,7 +149,7 @@ for folder in list_of_folders:
         chat_messages.pop()
 
         # now make it into the answers folder
-        answers_file = path_to_json.replace("*.json", "") + "answers/" + file_num + "_answer.json"
+        answers_file = path_to_json.replace("*.json", "") + "cot_answers/" + file_num + "_answer.json"
 
         data_new = data
         data_new['solution'] = res

@@ -1,12 +1,10 @@
+# When deploy on your local machine, please use ‘pip install openai‘ to install OpenAI library
 import openai
+import getpass
 import os
 import json
 import time
 from glob import glob
-
-# get the list from MATH_extract.py
-# goes in the order of Algebra, Counting and Probability, Geometry, Intermediate Algebra, Number Theory, Prealgebra, and Precalculus.
-# list_of_filenames = MATH_extract.main()
 
 # Insert your OPENAI API Key here
 # Do not publish or reveal Your API KEY
@@ -19,8 +17,46 @@ openai.api_key = api_key_file.readline()
 
 api_key_file.close()
 
-
-chat_messages = []
+chat_messages = [{
+    "role": "system",
+    "content": "You were a mathematics calculator. All you have now are a bunch of answers and some may contain explanations."
+}, { 
+    "role": "system", 
+    "content": "You are going to get rid of the explanations from the text and only respond with the answer."
+}, {
+    "role": "system",
+    "content": "If there is only an answer, repeat that answer in .tex format."
+}, { 
+    "role": "system", 
+    "content": "If the input is only numbers in tex format, repeat the numbers in .tex format"
+}, { 
+    "role": "system", 
+    "content": "You are going to output it in .tex format"
+}, {
+    "role": "system",
+    "content": "If the content is a numerical value followed by words, the answer is the numerical value, get rid of the words."
+}, {
+    "role": "system",
+    "content": "If the content are words followed by a numerical value, the answer is the numerical value, get rid of the words."
+}, {
+    "role": "system",
+    "content": "For example, content of 36 words. results in you responding with \\boxed{36}. Apply this to all other variations."
+}, {
+    "role": "system",
+    "content": "If it is a fraction keep it formatted as a latex fraction."
+}, { 
+    "role": "system", 
+    "content": "Please ensure that your answer is in .tex format. it should be \\boxed{answer}"
+}, { 
+    "role": "system", 
+    "content": "If no numerical value exists, respond with the text answer instead in the format of \\boxed{\text{answer}}"
+},{
+    "role": "system",
+    "content": "If the content is no solution, respond with \\boxed{no solution}."
+}, {
+    "role": "system",
+    "content": "When user is asking to exit/quit the chat, let them know they may enter 'exit' to exit the program"
+}]
 
 current_model = "gpt-3.5-turbo"
 
@@ -33,13 +69,11 @@ def create_result():
         print("Total tokens used: ")
         print(response['usage']['total_tokens'])
 
-        # print(response)
-
 
         response_msg = response['choices'][0]['message']['content']
         # comment this to decide whether or not to track old messages
             # needs a bit more work with the api to track tokens
-        chat_messages.append({"role" : "assistant", "content" : response['choices'][0]['message']['content'] })
+        # chat_messages.append(response_msg)
         # new_response_msg = response_msg['content'].strip("{\"solution\": ")
         # new_response_msg = new_response_msg.strip("\"}")
         return response_msg
@@ -109,27 +143,22 @@ def create_result():
 
 
 path_to_folders = 'C:/Users/me/Desktop/All Code Resides Here/School/CMPM118/test/' # replace with your own filepath
-# folder = input("What folder would you like to run? (algebra) (counting_and_probability) (geometry) (intermediate_algebra) (number_theory) (prealgebra) or (precalculus)\n")
+# folder = input("What folder would you like to run? (algebra) (counting_and_probability) (intermediate_algebra) (number_theory) (prealgebra) or (precalculus)\n")
 
-list_of_folders = ["number_theory", "prealgebra", "precalculus"]
-
-# list_of_folders = ["algebra", "counting_and_probability", "geometry", "intermediate_algebra", "number_theory", "prealgebra", "precalculus"]
+list_of_folders = ["algebra", "counting_and_probability", "geometry", "intermediate_algebra", "number_theory", "prealgebra", "precalculus"]
 
 for folder in list_of_folders:
-
-    while len(chat_messages) > 0:
-        chat_messages.pop()
-
     counter = 0
-    path_to_json = path_to_folders + folder + '/*.json'
 
-    # make answers dir if it's not already there
+    path_to_json = path_to_folders + folder + '/cot_answers/*.json'
+
     try:
-        os.mkdir(path_to_json.replace("*.json", "") + "few_shot_answers")
+        os.mkdir(path_to_json.replace("*.json", "") + "answers_formatted")
     except OSError as error:
         print(error)
         pass
 
+    counter = 0
     for f_name in sorted(glob(path_to_json)):
         f = open(f_name)
 
@@ -143,18 +172,16 @@ for folder in list_of_folders:
         file_num = file_num.strip(".json")
 
         # get the problem from each file
-        message = {"role" : "system", "content" : data['problem']}
+        message = {"role" : "system", "content" : data['solution']}
         chat_messages.append(message)
 
         res = create_result()
 
         # delete the problem (don't keep track of old answers)
-        if (counter != 0 and len(chat_messages) > 2):
-            chat_messages.pop(0)
-            chat_messages.pop(0)
+        chat_messages.pop()
 
         # now make it into the answers folder
-        answers_file = path_to_json.replace("*.json", "") + "few_shot_answers/" + file_num + "_answer.json"
+        answers_file = path_to_json.replace("*.json", "") + "answers_formatted/" + file_num + "_formatted.json"
 
         data_new = data
         data_new['solution'] = res
@@ -169,4 +196,4 @@ for folder in list_of_folders:
         # trying to prevent reaching a RPM or TPM limit (might need to be longer, or might even be redundant and slowing down for no reason)
         # time.sleep(10)
 
-print("We finished.")
+print("We finished")
